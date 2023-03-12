@@ -1,0 +1,25 @@
+{
+  "name": "dyns",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thatshinji/dyns.git"
+  },
+  "keywords": [],
+  "author": "thatshinji",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thatshinji/dyns/issues"
+  },
+  "homepage": "https://github.com/thatshinji/dyns#readme",
+  "devDependencies": {
+    "@types/node": "^18.15.0",
+    "tsx": "^3.12.3",
+    "typescript": "^4.9.5"
+  }
+}
