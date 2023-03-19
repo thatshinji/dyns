@@ -1,27 +1,30 @@
-import Interceptor from "./src/interceptor";
+import http from 'http'
+import Interceptor from "./src/interceptor"
 
-const inter = new Interceptor();
+export default class Dyns {
+  server: http.Server<any, any>
+  interceptor: Interceptor
 
-const wait = (ms: number) => {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
-};
+  constructor() {
+    const interceptor = new Interceptor()
+    this.server = http.createServer(async(req, res) => {
+      await interceptor.run({req, res})
+      if (!res.writableEnded) {
+        let body = res?.body || '200 OK'
+        if (body.pipe) {
+          body.pipe(res)
+        } else {
+          if (typeof body !== 'string' && res.getHeader('Content-Type') === 'application/json') {
+            body = JSON.stringify(body)
+          }
+          res.end(body)
+        }
+      }
+    })
+    this.server.on('clientError', (err, socket) => {
+      socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+    });
 
-const task = (id: number) => {
-  return async (ctx: any, next: any) => {
-    console.log(`task: ${id} begin`)
-    ctx.count++
-    await wait(1000)
-    console.log(`count: ${ctx.count}`)
-    await next()
-    console.log(`task: ${id} end`)
-  };
-};
-
-inter.use(task(0));
-inter.use(task(1));
-inter.use(task(2));
-inter.use(task(3));
-
-inter.run({count: 0})
+    this.interceptor = interceptor
+  }
+}
