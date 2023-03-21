@@ -1,30 +1,15 @@
-import http from 'http'
-import Interceptor from "./src/interceptor"
+import Server from './src/server'
 
-export default class Dyns {
-  server: http.Server<any, any>
-  interceptor: Interceptor
+const app = new Server()
 
-  constructor() {
-    const interceptor = new Interceptor()
-    this.server = http.createServer(async(req, res) => {
-      await interceptor.run({req, res})
-      if (!res.writableEnded) {
-        let body = res?.body || '200 OK'
-        if (body.pipe) {
-          body.pipe(res)
-        } else {
-          if (typeof body !== 'string' && res.getHeader('Content-Type') === 'application/json') {
-            body = JSON.stringify(body)
-          }
-          res.end(body)
-        }
-      }
-    })
-    this.server.on('clientError', (err, socket) => {
-      socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
-    });
+// add interceptor
+app.use(async({res}: any, next: any) => {
+  res.setHeader('Content-Type', 'text/html')
+  res.body=`<h1>Hello Dyns</h1>`
+  await next()
+})
 
-    this.interceptor = interceptor
-  }
-}
+app.listen({
+  port: 8080,
+  host: '0.0.0.0'
+})
